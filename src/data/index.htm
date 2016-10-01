@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+    <title>Test</title>
+	<script   src="https://code.jquery.com/jquery-3.0.0.slim.min.js"   integrity="sha256-Rf4BadfyCtsvHmO89BUZcbYvNNvZvOT08ALfEzvCsD0="   crossorigin="anonymous"></script>
+</head>
+<body> 
+  <div id="msg"></div>
+	<span>
+		<img id="open"    src="img/garageDoor-open.png"    height="170" width="170" alt="Door Open"    style="display: none;" onclick="door();">
+		<img id="closed"  src="img/garageDoor-closed.png"  height="170" width="170" alt="Door Closed"  style="display: none;" onclick="door();">
+		<img id="stopped" src="img/garageDoor-stopped.png" height="170" width="170" alt="Door Stopped" style="display: none;" onclick="door();">
+		<img id="opening" src="img/garageDoor-opening.gif" height="170" width="170" alt="Door Opening" style="display: none;" onclick="door();">
+		<img id="closing" src="img/garageDoor-closing.gif" height="170" width="170" alt="Door Closing" style="display: none;" onclick="door();">
+    </span>
+	<span>
+		<img id="lightOn" src="img/ligth-on.png" height="170" width="170" alt="Light On" style="display: none;" onclick="light();">
+		<img id="lightOff" src="img/ligth-off.png" height="170" width="170"  alt="Light Off" style="display: none;" onclick="light();">
+	</span>
+  </div>
+	
+	
+    <script>
+        var connectionTimer = 0;
+        var ws;
+
+        function enable() {
+            document.getElementById('msg').innerHTML = 'Ok';
+        }
+        function disable() {
+            document.getElementById('msg').innerHTML = '(connection lost, reconnecting...)';
+        }
+        function start() {
+            var parser = document.createElement('a');
+            // parser.href = document.URL;
+			parser.href = 'http://192.168.1.26/';
+            var websocketServerLocation = 'ws://' + parser.hostname + '/ws';
+
+            ws = new WebSocket(websocketServerLocation);
+            ws.onopen = function () {
+                enable();
+                if (window.connectionTimer) {
+                    window.clearInterval(window.connectionTimer);
+                    window.connectionTimer = 0;
+                } 
+            };
+			
+            ws.onclose = function () {
+                disable();
+                if (!window.connectionTimer) { 
+                    window.connectionTimer = setInterval(function () { start(websocketServerLocation) }, 5000);
+                }
+            };
+			
+            ws.onmessage = function (e) {
+				var message = e.data.trim();
+				console.log('Message received: [' + message + ']');
+				if (message.startsWith("Door"))
+				{ 
+					var id = message.substring(5);
+					if (id === "Open") $("#open").show(); else $("#open").hide();
+					if (id === "Opening") $("#opening").show(); else $("#opening").hide();
+					if (id === "Closed") $("#closed").show(); else $("#closed").hide();
+					if (id === "Closing") $("#closing").show(); else $("#closing").hide();
+					if (id === "Stopped") $("#stopped").show(); else $("#stopped").hide();
+						
+				} else if (message.startsWith("Light"))
+				{
+				   if (message.indexOf("On") >= 0) {
+						$("#lightOn").show();
+						$("#lightOff").hide();
+					} else {
+						$("#lightOff").show();
+						$("#lightOn").hide();
+					}
+				}  
+            };
+			
+        }
+        function door() {
+            if (ws.readyState !== 1) {
+                return;
+            }
+            ws.send('door');
+        }
+        function light() {
+            if (ws.readyState !== 1) {
+                return;
+            }
+            ws.send('light');
+        }
+
+        enable();
+
+        start();
+    </script>
+</body>
+</html>
