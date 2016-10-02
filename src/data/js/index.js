@@ -35,7 +35,10 @@
             var parser = document.createElement('a');
             parser.href = document.URL;
 			var websocketServerLocation = 'ws://' + parser.hostname + '/ws';
-			
+			if (websocketServerLocation == 'ws:///ws' )
+			{
+				websocketServerLocation = 'ws://192.168.1.26/ws';
+			}
 			log('websocketServerLocation: ' + websocketServerLocation);		
             
 
@@ -69,17 +72,17 @@
             };
 			*/
             ws.onmessage = function (e) {
-				var message = e.data.trim();
+				var message = e.data.trim().toLowerCase();
 				if (message.startsWith("pong"))
 				{ 
-					 log('pong received...');
+					log('pong received...');
 					pingPongCounter--;
 				} 
-				else if (message.startsWith("Door"))
+				else if (message.startsWith("door"))
 				{ 
 					log('Door status received...');
-					$downloadingDoorImage.attr("src", imgSource.concat("/garageDoor-", message.substring(5), ".gif"));
-				} else if (message.startsWith("Light"))
+					$downloadingDoorImage.attr("src", imgSource.concat("/door-", message.substring(5), ".gif"));
+				} else if (message.startsWith("light"))
 				{
 					log('Light status received...');
 					$downloadingLightImage.attr("src", imgSource.concat("/ligth-", message.substring(6), ".gif"));
@@ -124,5 +127,13 @@
 		
 $( document ).ready(function() {
     console.log( "ready!" );
+	
+	 $('#door').click(function() {
+		door();     
+	 });    
+	 
+	 $('#light').click(function() {
+		light();     
+	 });    
 	start();
 });
