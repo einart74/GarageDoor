@@ -1,5 +1,5 @@
-        //var imgSource = "file:///C:/Users/Einar/Documents/GitHub/GarageDoor/src/data/img/" ;
-		var imgSource = "img/" ;
+       
+		var imgSource = "https://rawgit.com/einart74/GarageDoor/master/src/data/img/" ;
 	   	   
 		var pingPongTimer = 0;
 		var pingPongCounter = 0;
@@ -31,13 +31,13 @@
 				window.pingPongTimer = 0;
 			} 
 			pingPongCounter = 0;
-			/*	
+				
             var parser = document.createElement('a');
             parser.href = document.URL;
 			var websocketServerLocation = 'ws://' + parser.hostname + '/ws';
-			*/
 			
-            var websocketServerLocation = 'ws://192.168.1.26/ws';
+			log('websocketServerLocation: ' + websocketServerLocation);		
+            
 
             ws = new WebSocket(websocketServerLocation);
             ws.onopen = function () {
